@@ -1,0 +1,15 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from datetime import datetime
+df=pd.read_excel('Путь к очищенным данным\файл с данными.xlsx',header=None) #Указывается путь к файлу с подготовленными данными, разбитыми на децили по месяцам
+df
+import statsmodels.api as sm
+plt.title('limits and risk')
+plt.scatter(df[1],df[0],c=df[2],cmap='viridis')
+X=np.concatenate((np.array(df[1]).reshape(len(df),1)**2,
+                  np.array(df[1]).reshape(len(df),1)**3),1)
+X=sm.add_constant(X)
+Y=np.array(df[0])
+model=sm.WLS(Y,X,weights=np.array(df[2])**4).fit()
+print(model.summary())
