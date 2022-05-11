@@ -1,0 +1,24 @@
+path = r'/Путь к файлу /файл.xlsx' #Указывается путь к файлу с данными, разбитыми на децили по месяцам
+df=pd.read_excel(path)
+df
+df['OD_diff_Limit'] = (df['OD'] / df['Limit']).round(3)
+df['Limit_extract_OD'] = (df['Limit'] - df['OD'])
+df['LN_OD_div_Limit_extract_OD'] = - np.log(df['Limit_extract_OD']/df['OD'])
+df
+X=np.concatenate((np.array(df['NPL30']/100).reshape(len(df),1),
+                  np.array(df['OD']).reshape(len(df),1)),1)
+# X=add_constant(X)
+Y=np.array(df['LN_OD_div_Limit_extract_OD'])
+log_reg = LinearRegression()
+model=log_reg.fit(X,Y)
+# print(model.summary())
+model.coef_
+X=np.concatenate((np.array(df['NPL30']/100).reshape(len(df),1),
+                  np.array(df['OD']).reshape(len(df),1)),1)
+# X=add_constant(X)
+Y=np.array(df['LN_OD_div_Limit_extract_OD'])
+log_reg = LinearRegression()
+X = sm.add_constant(X)
+model = sm.OLS(Y,X)
+fitted_model = model.fit()
+print(fitted_model.summary())
