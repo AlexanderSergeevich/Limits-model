@@ -4,12 +4,47 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 df=pd.read_excel('Путь к очищенным данным\файл с данными.xlsx',header=None) #Указывается путь к файлу с подготовленными данными, разбитыми на децили по месяцам
 df
+
 import statsmodels.api as sm
 plt.title('limits and risk')
 plt.scatter(df[1],df[0],c=df[2],cmap='viridis')
+
 X=np.concatenate((np.array(df[1]).reshape(len(df),1)**2,
                   np.array(df[1]).reshape(len(df),1)**3),1)
 X=sm.add_constant(X)
 Y=np.array(df[0])
 model=sm.WLS(Y,X,weights=np.array(df[2])**4).fit()
 print(model.summary())
+
+plt.figure(figsize=(15,7))
+plt.title('limits and NPL30')
+plt.scatter(df[1],df[0],c=df[2],cmap='viridis')
+t=np.linspace(np.min(df[1]),np.max(df[1]),50).reshape(50,1)
+T=np.concatenate((np.ones([50,1]),t**2,t**3),1)
+y=np.dot(T,np.array(model.params).reshape(len(model.params),1))
+plt.plot(t,y,linewidth=3,color='red')
+plt.xlabel('NPL30, %')
+plt.ylabel('Limit, RUR')
+cbr=plt.colorbar()
+cbr.set_label('ROI',rotation=0)
+
+plt.figure(figsize=(12,7))
+plt.title('ROI and NPL30')
+plt.scatter(df[1],df[2])
+z=np.polyfit(df[1],df[2],2)
+p=np.poly1d(z)
+t=np.linspace(np.min(df[1]),np.max(df[1]),30)
+plt.plot(t,p(t),color='red',linewidth=3)
+plt.xlabel('NPL30, %')
+plt.ylabel('ROI, %')
+
+plt.figure(figsize=(12,7))
+plt.title('ROI and limits')
+plt.scatter(df[0],df[2])
+z=np.polyfit(df[0],df[2],1)
+p=np.poly1d(z)
+t=np.linspace(np.min(df[0]),np.max(df[0]),30)
+plt.plot(t,p(t),color='red',linewidth=3)
+plt.xlabel('Limit, RUR')
+plt.ylabel('ROI, %')
+
